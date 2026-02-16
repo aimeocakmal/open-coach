@@ -1,0 +1,43 @@
+# Dependencies
+node_modules/
+.env
+.env.local
+.env.*.local
+
+# Build outputs
+.next/
+dist/
+build/
+
+# Database
+*.sqlite
+*.sqlite3
+
+# Logs
+*.log
+logs/
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Supabase
+.supabase/
+
+# Vercel
+.vercel/
+
+# Testing
+coverage/
+.nyc_output/
+
+# Temporary files
+*.tmp
+*.temp
+.cache/
