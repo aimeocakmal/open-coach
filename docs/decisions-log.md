@@ -516,6 +516,85 @@ This document records significant decisions made during the development of OpenC
 
 ---
 
+## Decision 013: Cost-Minimizing Infrastructure (Supabase over AWS)
+
+**Date:** February 16, 2026  
+**Decision:** Stick with Supabase and cost-minimizing services, avoid AWS for MVP and early stages
+
+**Context:** Evaluated AWS Bedrock Knowledge Bases vs current Supabase + BYOK stack. Need to decide infrastructure path for cost optimization.
+
+**Options Considered:**
+
+1. **AWS Bedrock Knowledge Bases + AWS Infrastructure**
+   - Managed RAG, multiple AI models
+   - Enterprise scalability
+   - Built-in compliance
+   - Cost: $500-1,000/mo for 100 coaches
+   - ❌ Conflicts with BYOK model (AWS manages AI)
+   - ❌ High vendor lock-in
+   - ❌ Complex setup (IAM, VPC, Lambda)
+   - ❌ 10x more expensive than Supabase
+
+2. **Supabase + Vercel + BYOK (Current Plan)**
+   - Supabase: PostgreSQL + Auth + Realtime + pgvector
+   - Vercel: Frontend hosting + serverless functions
+   - BYOK: Coaches bring own AI keys
+   - Cost: ~$50-100/mo for 100 coaches
+   - ✅ Aligns with BYOK model
+   - ✅ Open source (no lock-in)
+   - ✅ Fast to build (weeks not months)
+   - ✅ 10x cheaper
+
+**Rationale:**
+- MVP needs speed and low burn rate
+- BYOK model requires coaches use their own AI keys (not AWS's AI)
+- Supabase provides everything needed: database, auth, real-time, vector search
+- Can always migrate to AWS later for enterprise tier
+- Cost difference: $500-1,000/mo (AWS) vs $50-100/mo (Supabase)
+
+**Cost Breakdown (100 coaches, 1,000 queries/day each):**
+
+| Component | AWS Bedrock | Supabase + BYOK |
+|-----------|-------------|-----------------|
+| Vector Storage | $100-200/mo | $0 (pgvector free) |
+| Embeddings | $0.10/1K docs | $0.02/1M tokens |
+| AI Inference | $0.10-0.20/1K tokens | $0 (BYOK) |
+| Compute | $50-100/mo | $0-20/mo |
+| **Total You Pay** | **$500-1,000/mo** | **~$50-100/mo** |
+| **Coach Pays** | Included | ~$20-50/mo (their AI) |
+
+**Stack Confirmed:**
+- **Database:** Supabase (PostgreSQL + pgvector)
+- **Hosting:** Vercel (frontend + API routes)
+- **AI:** BYOK (coaches use OpenAI/Anthropic/Gemini)
+- **Storage:** Supabase Storage (knowledge base files)
+- **Real-time:** Supabase Realtime (live messages)
+
+**Future AWS Migration Path:**
+- Keep Supabase for MVP through 1,000 coaches
+- Add AWS as "Enterprise Tier" option later
+- Offer AWS for clients who need SOC2/HIPAA compliance
+- Maintain BYOK tier for individual coaches
+
+**Trade-offs:**
+- ✅ 10x cheaper infrastructure
+- ✅ Faster MVP development
+- ✅ No vendor lock-in
+- ✅ Perfect fit for BYOK model
+- ❌ Less enterprise-ready (compliance)
+- ❌ Smaller free tier limits than AWS
+- ❌ Younger platform (some rough edges)
+
+**Consequences:**
+- Infrastructure cost: ~$50-100/mo for early stage
+- Can serve 1,000+ coaches before needing to scale infra
+- Clear migration path to AWS for enterprise clients later
+- Focus budget on product, not infrastructure
+
+**Reversible?** ✅ Yes. Can migrate to AWS anytime if needed. Database is PostgreSQL (portable), code is Next.js (runs anywhere).
+
+---
+
 ## Open Questions
 
 Questions that need decisions in future:
